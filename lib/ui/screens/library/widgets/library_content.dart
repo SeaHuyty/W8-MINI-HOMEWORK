@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mini_homework/model/async_value.dart';
 import 'package:provider/provider.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/song/song_tile.dart';
@@ -20,16 +21,20 @@ class LibraryContent extends StatelessWidget {
           SizedBox(height: 16),
           Text("Library", style: AppTextStyles.heading),
           SizedBox(height: 50),
-      
-          Expanded(
-            child: ListView.builder(
-              itemCount: mv.songs.length,
-              itemBuilder: (context, index) => SongTile(
-                song: mv.songs[index],
-                isPlaying: mv.isSongPlaying(mv.songs[index]) ,
-                onTap: () {
-                  mv.start(mv.songs[index]);
-                },
+
+          mv.songs.when(
+            loading: () => const CircularProgressIndicator(),
+            error: (err, stack) => Text('Error: $err'),
+            data: (data) => Expanded(
+              child: ListView.builder(
+                itemCount: data.length,
+                itemBuilder: (context, index) => SongTile(
+                  song: data[index],
+                  isPlaying: mv.isSongPlaying(data[index]),
+                  onTap: () {
+                    mv.start(data[index]);
+                  },
+                ),
               ),
             ),
           ),
